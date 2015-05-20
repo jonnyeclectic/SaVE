@@ -1,0 +1,195 @@
+function love.update( dt )
+
+	if player.x <= 150 then 
+		zoom = false
+		player.x = 200
+		player.y = 200
+		player.width = 50
+		player.height = 150
+		player.speed = 300
+		love.graphics.scale(.5)
+	
+		tour = true
+		player.gun = true
+	end
+	
+  --camera
+	if tour then
+			camera:setPosition(player.x - width/2, player.y - height/2 )
+			
+			screenshot = love.graphics.newCanvas()
+			shot = love.graphics.newScreenshot()
+			screens = love.graphics.newImage(shot)
+			--local data = screenshot:getData()
+			collectgarbage()
+			--screenshot:refresh()
+			screenshot:renderTo(function() love.graphics.draw(screens, 0,0) end)
+			
+			screenshot2 = love.graphics.newCanvas()
+			shot = love.graphics.newScreenshot()
+			screens = love.graphics.newImage(shot)
+			screenshot2:renderTo(function() love.graphics.draw(screens, 0,0) end)
+			
+			screenshot3 = love.graphics.newCanvas()
+			shot = love.graphics.newScreenshot()
+			screens = love.graphics.newImage(shot)
+			screenshot3:renderTo(function() love.graphics.draw(screens, 0,0) end)
+			
+			screenshot4 = love.graphics.newCanvas()
+			shot = love.graphics.newScreenshot()
+			screens = love.graphics.newImage(shot)
+			screenshot4:renderTo(function() love.graphics.draw(screens, 0,0) end)
+			local distance = (player.x - guide.x) - 30
+			local right = true
+			local left = true
+			if distance >= width/3 or right then
+				guide.x = guide.x + distance * .5 * dt
+				right = false
+				left = true
+			elseif distance <= width/3 or left then
+				guide.x = guide.x - distance * .5 * dt
+				left = false
+				right = true
+			end
+			
+			guide.y = guide.y + ((player.y - (guide.y)) ) * 1 * dt
+			
+			
+	end 
+	
+  local deleteBulletU = {}           
+	local deleteBulletD = {}                                          -- keeps track of which bullet collided
+	local deleteenemy = {}                                           --keeps track of which enemy1 got shot
+	
+		 if love.keyboard.isDown('t') then
+    for _, v in pairs(enemies) do
+			i = math.random(1, 2)
+			v.x = v.x + player.speed *dt *(-1)^i
+			if player.x < width/2 then
+				v.y = v.y + player.speed *dt
+			end
+		end
+	end
+	
+
+	
+  --world:update(dt)
+ 
+  --keyboard
+  if love.keyboard.isDown('left') then
+    player.x = player.x - player.speed * dt
+  elseif love.keyboard.isDown('right') then
+    player.x = player.x + player.speed * dt
+  elseif love.keyboard.isDown('up') then
+    player.y = player.y - player.speed * dt
+  elseif love.keyboard.isDown('down') then
+    player.y = player.y + player.speed * dt
+  end
+	
+  if player.gun then
+  for i,v in ipairs(player.bulletsU) do
+        v.y = v.y - (v.dx * dt)   -- move them to the right  
+
+		-- mark shots that are not visible for removal
+        if v.y < player.y - height then
+           table.insert(deleteBulletU, i)
+        end
+
+		-- check for collision with enemies
+        for ii, vv in pairs(enemies) do
+           if love.CheckCollision(v.x,v.y,vv.x,vv.y,vv.width, vv.height) then
+              --score = score + 100 
+              table.insert(deleteenemy, ii) -- mark that enemy1 for removal
+              --numEnemies = numEnemies - 1
+              table.insert(deleteBulletU, i)  -- mark the shot to be removed
+							--s3:play()
+							
+						  if #playlist < 3 then
+								table.insert(playlist,vv.sound)
+								playsource()
+							end
+							else
+									table.remove(playlist, 1)
+							
+							--if playlist.1:isStopped() then
+							--love.audio.play(playlist--vv.sound
+           end
+        end
+	end
+	
+	for i,v in ipairs(player.bulletsD) do
+        v.y = v.y + (v.dx * dt)   -- move them down  
+
+		-- mark shots that are not visible for removal
+        if v.y > player.y + height then
+          table.insert(deleteBulletD, i)
+        end
+
+		-- check for collision with enemies
+        for ii, vv in pairs(enemies) do
+           if love.CheckCollision(v.x,v.y,vv.x,vv.y,vv.width, vv.height) then
+              --score = score + 100 
+              table.insert(deleteenemy, ii) -- mark that enemy1 for removal
+              --numEnemies = numEnemies - 1
+              table.insert(deleteBulletD, i)  -- mark the shot to be removed
+							--s3:play()
+						  if #playlist < 3 then
+								table.insert(playlist,vv.sound)
+								playsource()
+							end
+							else
+									table.remove(playlist, 1)
+							--if playlist.1:isStopped() then
+
+							--love.audio.play(playlist--vv.sound)
+							
+							
+           end
+        end
+	end
+  
+    love.clean(deleteenemy, enemies)
+    love.clean(deleteBulletU, player.bulletsU)
+		love.clean(deleteBulletD, player.bulletsD)
+	--love.clean(deletepickUps, pickUps)
+	end
+end
+		
+
+function love.clean(deleteThis, sourceObject)
+    for i,v in ipairs(deleteThis) do                                      --Erase all enemies/bullets marked for death
+		table.remove(sourceObject,v)
+    end    
+end
+
+function newsource(i)
+
+		if i == 0 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 01.wav", "static")
+		elseif i == 1 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 03.wav", "static")
+		elseif i == 2 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 04.wav", "static")
+		elseif i == 3 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 05.wav", "static")
+		elseif i == 4 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 06.wav", "static")
+		elseif i == 5 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 07.wav", "static")
+		elseif i == 6 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 08.wav", "static")
+		elseif i == 7 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 09.wav", "static")
+		elseif i == 8 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 10.wav", "static")
+		elseif i == 9 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 11.wav", "static")
+		elseif i == 10 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 12.wav", "static")
+		elseif i == 11 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 13.wav", "static")
+		elseif i == 12 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 14.wav", "static")
+		elseif i == 13 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 15.wav", "static")
+		elseif i == 14 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 16.wav", "static")
+		elseif i == 15 then return love.audio.newSource("synth2/synth/Arp C Lines/Arp C Line 02.wav", "static")
+		end
+
+end
+
+function playsource( )
+      for i, s in ipairs(playlist) do
+					if s:isStopped() then
+            love.audio.play(s)
+					end
+       end
+       table.insert(sources, s)
+       love.audio.play(playlist[#playlist])
+end

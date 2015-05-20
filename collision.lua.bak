@@ -1,0 +1,8 @@
+function love.CheckCollision(bulletX,bulletY,enemyX,enemyY,enemyWidth, enemyHeight)
+	return bulletX <= (enemyX + enemyWidth) and bulletX >= (enemyX - 10) and bulletY >= enemyY - 10 and bulletY <= enemyY + enemyHeight
+
+	--return 
+  --local enemyW, enemyH = enemyX + enemyWidth, enemyY + enemyHeight
+  --return bulletX > enemyX and bulletY < enemyY --bulletX > enemyX and bulletX < enemyW and bulletY <= enemyY and bulletY >= enemyY 
+
+end
